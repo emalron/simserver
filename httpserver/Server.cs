@@ -28,7 +28,7 @@ namespace httpserver
             }
         }
 
-        public void init(string[] prefixes)
+        public void Init(string[] prefixes)
         {
             if (!HttpListener.IsSupported)
             {
@@ -41,7 +41,7 @@ namespace httpserver
             foreach (string s in prefixes)
             {
                 listener.Prefixes.Add(s);
-                Console.Write(s);
+                Console.WriteLine(s);
             }
         }
 

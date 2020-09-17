@@ -15,9 +15,11 @@ namespace httpserver
             Middlewares middlewares = new Middlewares();
             middlewares.init();
 
-            server.init(prefixes: V);
+            server.Init(prefixes: V);
             server.AddHandler("GET", "/", Handler.PlainHandler);
             server.AddHandler("GET", "/test", Handler.TestHandler);
+            server.AddHandler("GET", "/opencl", Handler.OpenCLHandler);
+            server.AddHandler("GET", "/vectorsum", Handler.VectorSumHandler);
             server.Use(middlewares.GetMiddlewares());
             server.Run();
         }
