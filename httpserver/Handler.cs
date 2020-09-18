@@ -113,9 +113,14 @@ namespace httpserver
             sumKernal.SetMemoryArgument(2, v3);
             commands.Execute(sumKernal, null, worker, null, null);
             commands.ReadFromBuffer<float>(v3, ref v3_, false, null);
-            var test = v1_.Zip(v2_, (x, y) => string.Format("{0} + {1} = ", x.ToString(), y.ToString())).Zip(v3_, (x, y) => string.Format("{0} {1}", x, y.ToString()));
-            var result = v3_.Select(c => c.ToString()).Aggregate((current, next) => current + string.Format("<br>{0}", next));
-            var result2 = test.Aggregate((current, next) => current + string.Format("<br>{0}", next));
+            var test = v1_
+                .Zip(v2_, (x, y) => string.Format("{0} + {1} = ", x.ToString(), y.ToString()))
+                .Zip(v3_, (x, y) => string.Format("{0} {1}", x, y.ToString()));
+            var result = v3_
+                .Select(c => c.ToString())
+                .Aggregate((current, next) => current + string.Format("<br>{0}", next));
+            var result2 = test
+                .Aggregate((current, next) => current + string.Format("<br>{0}", next));
             string responseString = string.Format("<html><body>{0}</body></html>", result2);
             byte[] buffer = System.Text.Encoding.UTF8.GetBytes(responseString);
             response.ContentLength64 = buffer.Length;
