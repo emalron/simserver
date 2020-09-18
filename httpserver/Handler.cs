@@ -73,16 +73,16 @@ namespace httpserver
             HttpListenerRequest request = context.Request;
             HttpListenerResponse response = context.Response;
             string vecSum = @"
-                _kernel void vectorSum(__global float *v1, __global float *v2, __global float *v3) {
+                __kernel void vectorSum(__global float *v1, __global float *v2, __global float *v3) {
                     int i = get_global_id(0);
                     v3[i] = v1[i] + v2[i];
                 }
             ";
-            int size = 1000;
+            int size = 100;
             float[] v1_ = new float[size];
             float[] v2_ = new float[size];
             float[] v3_ = new float[size];
-            for (var i = 0; i < 1000; i++)
+            for (var i = 0; i < size; i++)
             {
                 v1_[i] = (float)i;
                 v2_[i] = (float).5f;
@@ -113,7 +113,10 @@ namespace httpserver
             sumKernal.SetMemoryArgument(2, v3);
             commands.Execute(sumKernal, null, worker, null, null);
             commands.ReadFromBuffer<float>(v3, ref v3_, false, null);
-            string responseString = string.Format("<html><body>machine info: {0}</body></html>", v3_[0]);
+            var test = v1_.Zip(v2_, (x, y) => string.Format("{0} + {1} = ", x.ToString(), y.ToString())).Zip(v3_, (x, y) => string.Format("{0} {1}", x, y.ToString()));
+            var result = v3_.Select(c => c.ToString()).Aggregate((current, next) => current + string.Format("<br>{0}", next));
+            var result2 = test.Aggregate((current, next) => current + string.Format("<br>{0}", next));
+            string responseString = string.Format("<html><body>{0}</body></html>", result2);
             byte[] buffer = System.Text.Encoding.UTF8.GetBytes(responseString);
             response.ContentLength64 = buffer.Length;
             Stream output = response.OutputStream;
