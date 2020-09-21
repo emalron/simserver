@@ -20,6 +20,7 @@ namespace httpserver
             server.AddHandler("GET", "/test", Handler.TestHandler);
             server.AddHandler("GET", "/opencl", Handler.OpenCLHandler);
             server.AddHandler("GET", "/vectorsum", Handler.VectorSumHandler);
+            server.AddHandler("POST", "/ajax", Handler.AjaxHandler);
             server.Use(middlewares.GetMiddlewares());
             server.Run();
         }

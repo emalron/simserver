@@ -21,6 +21,7 @@ namespace httpserver
         public void init()
         {
             middlewares.Add(LogMiddleware);
+            middlewares.Add(CorsMiddleware);
         }
 
         public List<Middleware> GetMiddlewares()
@@ -39,8 +40,29 @@ namespace httpserver
                 stopwatch.Start();
                 next(context);
                 stopwatch.Stop();
-                var log = string.Format("Method: {0}, Pattern: {1} - {2}", method, pattern, stopwatch.ElapsedMilliseconds.ToString());
+                var log = string.Format("Method: {0}, Pattern: {1} - {2} ms", method, pattern, stopwatch.ElapsedMilliseconds.ToString());
                 Console.WriteLine(log);
+            };
+        }
+        public HandlerFunc CorsMiddleware(HandlerFunc next)
+        {
+            return (context) =>
+            {
+                var response = context.Response;
+                response.Headers.Add("Access-Control-Allow-Origin", "*");
+                response.Headers.Add("Access-Control-Allow-Methods", "OPTIONS, POST, GET");
+                response.Headers.Add("Access-Control-Allow-Headers", "Content-type");
+                if (context.Request.HttpMethod.Equals("OPTIONS"))
+                {
+                    response.StatusCode = 207;
+                    Console.WriteLine("CORS Check");
+                    response.OutputStream.Close();
+                }
+                else
+                {
+                    next(context);
+                }
+                
             };
         }
 

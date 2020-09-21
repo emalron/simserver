@@ -7,6 +7,7 @@ using System.Net;
 using System.Net.Http.Headers;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Text.Json;
 
 namespace httpserver
 {
@@ -78,7 +79,7 @@ namespace httpserver
                     v3[i] = v1[i] + v2[i];
                 }
             ";
-            int size = 100;
+            int size = 100000;
             float[] v1_ = new float[size];
             float[] v2_ = new float[size];
             float[] v3_ = new float[size];
@@ -95,6 +96,7 @@ namespace httpserver
             try
             {
                 program.Build(null, null, null, IntPtr.Zero);
+                Console.WriteLine("program build completed");
             }
             catch
             {
@@ -108,22 +110,50 @@ namespace httpserver
             commands.WriteToBuffer(v1_, v1, false, null);
             commands.WriteToBuffer(v2_, v2, false, null);
             ComputeKernel sumKernal = program.CreateKernel("vectorSum");
+            Console.WriteLine("kernal created");
             sumKernal.SetMemoryArgument(0, v1);
             sumKernal.SetMemoryArgument(1, v2);
             sumKernal.SetMemoryArgument(2, v3);
             commands.Execute(sumKernal, null, worker, null, null);
+            Console.WriteLine("Executed");
             commands.ReadFromBuffer<float>(v3, ref v3_, false, null);
-            var test = v1_
-                .Zip(v2_, (x, y) => string.Format("{0} + {1} = ", x.ToString(), y.ToString()))
-                .Zip(v3_, (x, y) => string.Format("{0} {1}", x, y.ToString()));
-            var result = v3_
-                .Select(c => c.ToString())
-                .Aggregate((current, next) => current + string.Format("<br>{0}", next));
-            var result2 = test
-                .Aggregate((current, next) => current + string.Format("<br>{0}", next));
-            string responseString = string.Format("<html><body>{0}</body></html>", result2);
+            StringBuilder sb = new StringBuilder();
+            for(int i=0; i<size; i++)
+            {
+                sb.AppendFormat("{0} + {1} = {2}<br>", v1_[i].ToString(), v2_[i].ToString(), v3_[i].ToString());
+            }
+            var sum_expression_result = sb.ToString();
+            string responseString = string.Format("<html><body>{0}</body></html>", sum_expression_result);
             byte[] buffer = System.Text.Encoding.UTF8.GetBytes(responseString);
             response.ContentLength64 = buffer.Length;
+            Stream output = response.OutputStream;
+            output.Write(buffer, 0, buffer.Length);
+            output.Close();
+        }
+        class Human
+        {
+            public string name { get; set; }
+            public int age { get; set; }
+        }
+        public static void AjaxHandler(HttpListenerContext context)
+        {
+            HttpListenerRequest request = context.Request;
+            HttpListenerResponse response = context.Response;
+            Stream body = request.InputStream;
+            Encoding encoding = request.ContentEncoding;
+            StreamReader reader = new StreamReader(body, encoding);
+            if (request.ContentType != null)
+            {
+                Console.WriteLine("client data content type: {0}", request.ContentType);
+            }
+            Console.WriteLine("client data content length: {0}", request.ContentLength64);
+            var data = reader.ReadToEnd();
+            Console.WriteLine(data);
+            var human = JsonSerializer.Deserialize<Human>(data);
+            human.name += " II";
+            human.age += 2000;
+            var responseString = JsonSerializer.Serialize(human);
+            byte[] buffer = System.Text.Encoding.UTF8.GetBytes(responseString);
             Stream output = response.OutputStream;
             output.Write(buffer, 0, buffer.Length);
             output.Close();
