@@ -55,14 +55,10 @@ namespace httpserver
                 if (context.Request.HttpMethod.Equals("OPTIONS"))
                 {
                     response.StatusCode = 207;
-                    Console.WriteLine("CORS Check");
                     response.OutputStream.Close();
+                    return;
                 }
-                else
-                {
-                    next(context);
-                }
-                
+                next(context);
             };
         }
 

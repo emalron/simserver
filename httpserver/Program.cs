@@ -10,7 +10,7 @@ namespace httpserver
         static void Main(string[] args)
         {
             Console.WriteLine("Hello World!");
-            string[] V = { "http://localhost:8080/" };
+            string[] V = { "http://*:80/" };
             Server server = new Server();
             Middlewares middlewares = new Middlewares();
             middlewares.init();
@@ -21,6 +21,7 @@ namespace httpserver
             server.AddHandler("GET", "/opencl", Handler.OpenCLHandler);
             server.AddHandler("GET", "/vectorsum", Handler.VectorSumHandler);
             server.AddHandler("POST", "/ajax", Handler.AjaxHandler);
+            server.AddHandler("POST", "/custom", Handler.CustomHandler);
             server.Use(middlewares.GetMiddlewares());
             server.Run();
         }
