@@ -61,7 +61,6 @@ namespace httpserver
                 next(context);
             };
         }
-
         public HandlerFunc AuthMiddleware (HandlerFunc next)
         {
             return (context) =>

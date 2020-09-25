@@ -14,7 +14,6 @@ namespace httpserver
             Server server = new Server();
             Middlewares middlewares = new Middlewares();
             middlewares.init();
-
             server.Init(prefixes: V);
             server.AddHandler("GET", "/", Handler.PlainHandler);
             server.AddHandler("GET", "/test", Handler.TestHandler);
@@ -22,6 +21,7 @@ namespace httpserver
             server.AddHandler("GET", "/vectorsum", Handler.VectorSumHandler);
             server.AddHandler("POST", "/ajax", Handler.AjaxHandler);
             server.AddHandler("POST", "/custom", Handler.CustomHandler);
+            server.AddHandler("POST", "/house", Handler.HouseHandler);
             server.Use(middlewares.GetMiddlewares());
             server.Run();
         }
