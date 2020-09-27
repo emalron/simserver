@@ -1,0 +1,91 @@
+﻿<html>
+    <head>
+        <title>test page</title>
+    </head>
+    <body>
+        <div>Welcome back, {{.name}}</div>
+        <div>
+            <form>
+                <label>v1</label> <textarea name="v1"></textarea>
+                <label>v2</label> <textarea name="v2"></textarea>
+            </form>
+        </div>
+        <div>
+            <form>
+                <label>code</label> <textarea name="code" spellcheck="false" cols="30" rows="10"></textarea>
+                <button id="pushbutton" onclick="push()">push</button>
+            </form>
+        </div>
+        <div>
+            result
+            <div id="result"></div>
+        </div>
+        <script>
+            window.onload = function() {
+                let tas = document.getElementsByTagName("textarea");
+                console.log(tas);
+                let v1 = tas[0];
+                let v2 = tas[1];
+                v1.value = "0";
+                v2.value = "0.5";
+                for(var i=1; i<1000; i++) {
+                    v1.value += "\n" + i;
+                    v2.value += "\n" + 0.5;
+                }
+
+                let code = " \
+__kernel void vectorSum( \n \
+    __global float *in1, \n \
+    __global float *in2, \n \
+    __global float *out )\n \
+{ \n \
+    int i = get_global_id(0); \n \
+    out[i] = in1[i] + in2[i]; \n \
+}";
+                tas[2].value = code;
+                
+                let btn = document.getElementById("pushbutton");
+                btn.addEventListener("click", function(e) {
+                    e.preventDefault();
+                    var xhr = new XMLHttpRequest();
+                    var tas = document.getElementsByTagName("textarea");
+                    let codee = tas[2].value;
+                    let v1array = tas[0].value.split(/\r\n|\r|\n/).map(e => parseFloat(e));
+                    let v2array = tas[1].value.split(/\r\n|\r|\n/).map(e => parseFloat(e));
+
+                    var data = {
+                        code: codee,
+                        v1: v1array,
+                        v2: v2array
+                    };
+                    console.log(data);
+                    xhr.onload = function() {
+                        if(xhr.status === 200 || xhr.status === 201) {
+                            var res = document.getElementById("result");
+                            res.innerHTML = xhr.responseText;
+                        } else {
+                            console.error(xhr.responseText);
+                        }
+                    }
+                    xhr.open('POST', 'http://me.emalron.com/custom');
+                    xhr.setRequestHeader('Content-type', 'application/json');
+                    xhr.send(JSON.stringify(data));
+                })
+            }
+
+            var push = function(e) {
+                
+                // xhr.onload = function() {
+                //     if(xhr.status === 200 || xhr.status === 201) {
+                //         console.log(xhr.responseText);
+                //     } else {
+                //         console.error(xhr.responseText);
+                //     }
+                // }
+                // xhr.open('POST', 'http://me.emalron.com/ajax');
+                // xhr.setRequestHeader('Content-type', 'application/json');
+                // xhr.send(JSON.stringify(data));
+            }
+        </script>
+    </body>
+</html>
