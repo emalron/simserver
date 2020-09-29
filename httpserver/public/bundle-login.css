@@ -1,0 +1,16 @@
+.header {
+    text-align: center;
+}
+.shrine-logo {
+    width: 150px;
+    height: 150px;
+    padding-top: 80px;
+    fill: currentColor;
+}
+
+.username,
+.password {
+    display: flex;
+    margin: 20px auto;
+    width: 300px;
+}
